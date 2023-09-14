@@ -37,6 +37,7 @@
       ncurses
 
       cargo
+      cargo-expand
       rustc
 
       glibcLocales
