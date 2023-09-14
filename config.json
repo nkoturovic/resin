@@ -1,0 +1,14 @@
+{
+    "app": {
+        "name": "resin"
+    },
+    "database": {
+        "connection": "postgres",
+        "host": "127.0.0.1",
+        "port": 3306,
+        "name": "demodb",
+        "username": "${USER}",
+        "password": "qweqwe123",
+        "options": "sslmode=disable application_name=resin"
+    }
+}
