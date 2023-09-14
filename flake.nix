@@ -1,5 +1,5 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   inputs.koturNixPkgs = {
     url = "github:nkoturovic/kotur-nixpkgs/v0.5";
     flake = false;

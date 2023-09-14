@@ -5,11 +5,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1689068808,
-        "narHash": "sha256-6ixXo3wt24N/melDWjq70UuHQLxGV8jZvooRanIHXw0=",
+        "lastModified": 1694529238,
+        "narHash": "sha256-zsNZZGTGnMOf9YpHKJqMSsa0dXbfmxeoJ7xHlrt+xmY=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "919d646de7be200f3bf08cb76ae1f09402b6f9b4",
+        "rev": "ff7b65b44d01cf9ba6a71320833626af21126384",
         "type": "github"
       },
       "original": {
@@ -20,32 +20,32 @@
     "koturNixPkgs": {
       "flake": false,
       "locked": {
-        "lastModified": 1692448587,
-        "narHash": "sha256-y6ddxe1bIfZlDp3YWf70umCiuaeH79DX+b0CDNnppJ0=",
+        "lastModified": 1694342316,
+        "narHash": "sha256-g+hFCXBncpciZL4UZXv2YKY2Sl+Mn9/mYxKBGtei4ak=",
         "owner": "nkoturovic",
         "repo": "kotur-nixpkgs",
-        "rev": "07d6c7ef98f95a8573966eb9ccf216ec11ff3731",
+        "rev": "086926b6d49901d2eb5a8ae1e9ef346707e88717",
         "type": "github"
       },
       "original": {
         "owner": "nkoturovic",
-        "ref": "v0.4",
+        "ref": "v0.5",
         "repo": "kotur-nixpkgs",
         "type": "github"
       }
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1692414505,
-        "narHash": "sha256-sSTuyR9JYSxmUcYcj0Jvw1hIq1tz/Canw9mK0hEJvnE=",
+        "lastModified": 1694593561,
+        "narHash": "sha256-WSaIQZ5s9N9bDFkEMTw6P9eaZ9bv39ZhsiW12GtTNM0=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "4cdad15f34e6321a2f789b99d42815b9142ac2ba",
+        "rev": "1697b7d480449b01111e352021f46e5879e47643",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixos-23.05",
+        "ref": "nixpkgs-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }

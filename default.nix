@@ -28,7 +28,7 @@
 }: let
   package = pkgs.rustPlatform.buildRustPackage rec {
       name = "resin";
-      version = "0.0.4";
+      version = "0.0.5";
       cargoLock.lockFile = ./Cargo.lock;
       src = pkgs.lib.cleanSource ./.;
 
