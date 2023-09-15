@@ -1,16 +1,39 @@
-use axum::{
-    routing::get,
-    Router,
-};
+use ormlite::model::*;
+use resin::models::Person;
 
 #[tokio::main]
-async fn main() {
-    // build our application with a single route
-    let app = Router::new().route("/", get(|| async { "Hello, World!" }));
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Start by making a database connection.
+    let pool = ormlite::postgres::PgPoolOptions::new()
+        .max_connections(5)
+        .connect("postgres://kotur:qweqwe123@localhost:3306")
+        .await?;
 
-    // run it with hyper on localhost:3000
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    let mut conn = pool.acquire().await.unwrap();
+
+
+    // Query builder syntax closely follows SQL syntax, translated into chained function calls.
+    let people = Person::select()
+        .where_("age > ?")
+        .bind(50)
+        .fetch_all(conn.as_mut())
+        .await?;
+    println!("{:?}", people);
+
+    // You can insert the model directly.
+    let mut john = Person {
+        id: people.last().unwrap().id + 1,
+        name: "John".to_string(),
+        age: 99,
+    }
+    .insert(&mut conn)
+    .await?;
+    println!("{:?}", john);
+
+    // After modifying the object, you can update all its fields.
+    john.age += 1;
+    john.update_all_fields(conn.as_mut()).await?;
+
+
+    Ok(())
 }
