@@ -39,6 +39,7 @@
       cargo
       cargo-expand
       rustc
+      diesel-cli
 
       glibcLocales
       postgresql
@@ -85,13 +86,14 @@
     LANG = "en_US.UTF-8";
     PGDATABASE = appConfig.database.name;
     PGDATA = toString ./.pg/pgdata;
-    PGHOST = toString ./.pg/sockets;
+    PGHOST = appConfig.database.host; # toString ./.pg/sockets;
     PGPORT = appConfig.database.port;
     PGPASS = appConfig.database.password;
 
     # Hook used for modifying the prompt look and printing the welcome message
     shellHook = ''
       export PGUSER="$USER"
+      export DATABASE_URL="postgres://$PGUSER:$PGPASS@$PGHOST:$PGPORT/$POSTGRES_DB"
       PS1="\[\e[32m\][\[\e[m\]\[\e[33m\]nix-shell\\[\e[m\]:\[\e[36m\]\w\[\e[m\]\[\e[32m\]]\[\e[m\]\\$\[\e[m\] "
       alias ll="ls -l"
       dinosay -r -b happy -w 60 "Welcome to the '${package.name}' dev environment!"
