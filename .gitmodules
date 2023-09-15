@@ -1,3 +1,0 @@
-[submodule "example/rust-axum-postgres-api"]
-	path = example/rust-axum-postgres-api
-	url = https://github.com/wpcodevo/rust-axum-postgres-api
