@@ -19,8 +19,8 @@ pub fn resin_entity(_args: TokenStream, input: TokenStream) -> TokenStream {
         use serde::{Serialize,Deserialize};
         // Create Entity
         #[derive(Debug, Serialize, Deserialize)]
-        struct #model_struct_name{
-            #( #input_fields_iter, )*
+        pub struct #model_struct_name{
+            #( pub #input_fields_iter, )*
         }
     })
 }

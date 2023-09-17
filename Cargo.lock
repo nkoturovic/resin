@@ -1274,6 +1274,7 @@ version = "0.1.0"
 dependencies = [
  "quote",
  "serde",
+ "serde_json",
  "syn 2.0.33",
 ]
 
