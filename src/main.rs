@@ -1,5 +1,7 @@
+use crate::models::Person;
 use ormlite::model::*;
-use resin::models::Person;
+
+mod models; // import models module
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -11,7 +13,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut conn = pool.acquire().await.unwrap();
 
-
     // Query builder syntax closely follows SQL syntax, translated into chained function calls.
     let people = Person::select()
         .where_("age > ?")
@@ -22,9 +23,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // You can insert the model directly.
     let mut john = Person {
-        id: people.last().unwrap().id + 1,
+        id: people.last().map_or(0, |p| p.id + 1),
         name: "John".to_string(),
-        age: 99,
+        age: 50,
     }
     .insert(&mut conn)
     .await?;
@@ -33,7 +34,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // After modifying the object, you can update all its fields.
     john.age += 1;
     john.update_all_fields(conn.as_mut()).await?;
-
 
     Ok(())
 }
