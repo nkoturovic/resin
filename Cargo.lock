@@ -1264,7 +1264,16 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "ormlite",
+ "resin-macros",
  "tokio",
+]
+
+[[package]]
+name = "resin-macros"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn 2.0.33",
 ]
 
 [[package]]

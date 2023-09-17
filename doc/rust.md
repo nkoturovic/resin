@@ -44,3 +44,8 @@ Output
 ```
 Person { name: "Marcel" }
 ```
+
+## Macros
+
+
+https://blog.logrocket.com/macros-in-rust-a-tutorial-with-examples/#attributelikemacros

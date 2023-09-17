@@ -30,6 +30,8 @@ ormlite init
 
 Eventually, resin can be a framework for easily constructing REST APIs
 
+See: [Proof of concept implementation](./src/resin-macros/tests/model_test.rs)
+
 ```rust
 use resin::{Entity, Model};
 
@@ -72,3 +74,9 @@ pub struct Person {
 * `psql` - Open postgres shell
 * `\dt` - Show tables
 * `SELECT * FROM <table-name>;` - Show table
+
+
+## Thoughts and ideas
+
+* If the direction is that the resin library should be crated
+  * Then, we can create resin (resin-core) folder, and also have resin-macros and maybe some more
