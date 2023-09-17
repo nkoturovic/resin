@@ -80,3 +80,48 @@ pub struct Person {
 
 * If the direction is that the resin library should be crated
   * Then, we can create resin (resin-core) folder, and also have resin-macros and maybe some more
+
+
+More idea on having a single model for Model and Entity
+
+```rust
+#derive(Debug)
+#entity_derive(Serialize,Deserialize)
+struct User {
+    id: i32,
+    name: String,
+    age: i32,
+
+    #[entity_field]
+    age: i32,
+
+    #[model_field]
+    born: Date,
+}
+```
+
+Goals:
+
+* Reduce boilerplate code
+* Lower the possibility for error 
+
+
+It would be good to consider making this even more generic
+
+```rust
+#[multi_struct(UserModel, UserEntity)]
+// Optionally the union struct can be kept
+#[multi_struct_keep_original]
+#derive(Debug)
+struct User {
+    id: i32,
+    name: String,
+    age: i32,
+
+    #[only(UserEntity)]
+    age: i32,
+
+    #[only(UserModel)]
+    born: Date,
+}
+```

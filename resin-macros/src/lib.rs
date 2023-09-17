@@ -6,19 +6,19 @@ use syn::{parse_macro_input, ItemStruct};
 
 // using proc_macro_attribute to declare an attribute like procedural macro
 #[proc_macro_attribute]
-pub fn resin_model(_args: TokenStream, input: TokenStream) -> TokenStream {
+pub fn resin_entity(_args: TokenStream, input: TokenStream) -> TokenStream {
     // Parse the input as an item (expecting a struct definition).
     let input = parse_macro_input!(input as ItemStruct);
     let input_struct_name = &input.ident;
     let input_fields_iter = input.fields.iter();
-    let model_struct_name = format_ident!("{}Model", input_struct_name);
+    let model_struct_name = format_ident!("{}Entity", input_struct_name);
 
     TokenStream::from(quote! {
-        // TODO(nkoturovic) No need to leave #input, only used as a blueprint
-        #input
-        // #[derive(Model, Debug)]
-        // #ormlite(table = "people", insertable = InsertPerson)]
-        #[derive(Debug)]
+        #input // don't touch the original struct
+
+        use serde::{Serialize,Deserialize};
+        // Create Entity
+        #[derive(Debug, Serialize, Deserialize)]
         struct #model_struct_name{
             #( #input_fields_iter, )*
         }

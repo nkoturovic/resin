@@ -1273,6 +1273,7 @@ name = "resin-macros"
 version = "0.1.0"
 dependencies = [
  "quote",
+ "serde",
  "syn 2.0.33",
 ]
 

@@ -1,5 +1,5 @@
-use crate::models::Person;
 use ormlite::model::*;
+use crate::models::Person;
 
 mod models; // import models module
 
