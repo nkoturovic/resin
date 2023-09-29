@@ -1,7 +1,7 @@
-use crate::models::{PersonEntity, PersonModel};
+use crate::types::{PersonEntity, PersonModel};
 use ormlite::model::*;
 
-mod models; // import models module
+mod types; // import models module
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
