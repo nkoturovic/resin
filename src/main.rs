@@ -1,5 +1,5 @@
+use crate::models::{PersonEntity, PersonModel};
 use ormlite::model::*;
-use crate::models::Person;
 
 mod models; // import models module
 
@@ -14,26 +14,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = pool.acquire().await.unwrap();
 
     // Query builder syntax closely follows SQL syntax, translated into chained function calls.
-    let people = Person::select()
+    let people_models = PersonModel::select()
         .where_("age > ?")
         .bind(50)
         .fetch_all(conn.as_mut())
         .await?;
-    println!("{:?}", people);
+
+    let people_ents: Vec<PersonEntity> = people_models.into_iter().map(|m| m.into()).collect();
+    println!("{:?}", people_ents);
 
     // You can insert the model directly.
-    let mut john = Person {
-        id: people.last().map_or(0, |p| p.id + 1),
+    let mut john_model = PersonModel {
+        id: people_ents.last().map_or(0, |p| p.id + 1),
         name: "John".to_string(),
         age: 50,
     }
     .insert(&mut conn)
     .await?;
-    println!("{:?}", john);
+
+    let mut john_entity = PersonEntity::from(john_model);
+    println!("{:?}", john_entity);
 
     // After modifying the object, you can update all its fields.
-    john.age += 1;
-    john.update_all_fields(conn.as_mut()).await?;
+    john_entity.age += 1;
+
+    john_model = john_entity.into();
+    john_model.update_all_fields(conn.as_mut()).await?;
 
     Ok(())
 }
