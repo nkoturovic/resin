@@ -38,7 +38,10 @@ Base permissions are required for each model defined.
 Base permissions are known at compile time
 Therefore, those permissions can easily get exported by the API
 
-## API
+## Strongly typed clients
+
+* Not part of the initial version
+* Should be doable after backend is fully complete, probably better then
 
 src/api
 * import export types
