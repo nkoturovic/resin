@@ -18,6 +18,47 @@ ormlite init
 * `ormlite migrate initial` -  Auto generates migrations based on rust structs
 * `ormlite up` - Executes migrations
 
+## Permission system
+
+* Field level permissions
+
+Q: Entity vs model permissions?
+
+Built-in permissions + extended
+
+Groups: Owner, Admin, User, Guest
+         CRUD,  CRUD, CRUD, CRUD
+
+Actually, maybe both should have permissions?
+But, hmm, ... -> Model | check_permissions
+I think model only needs permissions...
+Export usual permissions???
+
+Base permissions are required for each model defined.
+Base permissions are known at compile time
+Therefore, those permissions can easily get exported by the API
+
+## API
+
+src/api
+* import export types
+* export builtin permissions
+* export manip functions
+
+use resin::api::{User}
+api.create(User {
+    firstname : "John",
+    lastname : "Doe"
+})
+
+with macros, easily can do:
+api.CreateUser(User{
+    ...
+})
+
+---
+
+# Deprecated
 
 ## TODO:
 
@@ -31,6 +72,8 @@ ormlite init
 Eventually, resin can be a framework for easily constructing REST APIs
 
 See: [Proof of concept implementation](./src/resin-macros/tests/model_test.rs)
+
+**NOTE:** This is done through boilermates now
 
 ```rust
 use resin::{Entity, Model};
