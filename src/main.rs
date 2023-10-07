@@ -1,3 +1,6 @@
+mod models; // import models module
+mod resin_extensions;
+
 // use crate::types::{PersonEntity, PersonModel};
 // use ormlite::model::*;
 
@@ -9,10 +12,9 @@ use axum::{
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use std::net::SocketAddr;
 
-use crate::layers::add_trace_layer;
+use crate::resin_extensions::ResinRouterExtenions;
 
-mod types; // import models module
-mod layers;
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -28,16 +30,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .init();
 
     // build our application with a route
-    let app = add_trace_layer(
-         Router::new()
+   let app = Router::new()
         .route("/", get(handler))
-    );
-        // `TraceLayer` is provided by tower-http so you have to add that as a dependency.
-        // It provides good defaults but is also very customizable.
-        //
-        // See https://docs.rs/tower-http/0.1.1/tower_http/trace/index.html for more details.
-        //
-        // If you want to customize the behavior using closures here is how.
+        .add_tracing_layer();
  
     // run it
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
