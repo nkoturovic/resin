@@ -1,3 +1,7 @@
+## TODO:
+
+* Potentially use TypedBuilder crate
+
 ## ORMLite
 
 See: https://github.com/kurtbuilds/ormlite
@@ -62,8 +66,6 @@ api.CreateUser(User{
 ---
 
 # Deprecated
-
-## TODO:
 
 * [ ] Separate nix files for resin and postgres database
   * [ ] Create a separate project for PG database to be used with different apps

@@ -11,11 +11,21 @@ use tracing::{info_span, Span};
 // use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use std::time::Duration;
 
-pub trait ResinRouterExtenions {
+pub trait ResinRouterExtenions<T>
+where
+    T: Clone + 'static,
+    T: Send,
+    T: Sync,
+{
     fn add_tracing_layer(self: Self) -> Self;
 }
 
-impl ResinRouterExtenions for axum::Router {
+impl<T> ResinRouterExtenions<T> for axum::Router<T>
+where
+    T: Clone + 'static,
+    T: Send,
+    T: Sync,
+{
     fn add_tracing_layer(self: Self) -> Self {
         self.layer(
             TraceLayer::new_for_http()
