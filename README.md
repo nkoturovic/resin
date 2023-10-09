@@ -1,6 +1,8 @@
 ## TODO:
 
 * Potentially use TypedBuilder crate
+* Consider JSON Schema for defining types with [Typify](https://github.com/oxidecomputer/typify/tree/main)
+  * Maybe even better, ability to generate JSON schema from Rust types with [schemars](https://docs.rs/schemars/latest/schemars)
 
 ## ORMLite
 
