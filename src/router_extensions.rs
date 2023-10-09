@@ -13,18 +13,14 @@ use std::time::Duration;
 
 pub trait ResinRouterExtenions<T>
 where
-    T: Clone + 'static,
-    T: Send,
-    T: Sync,
+    T: Clone + Send + Sync + 'static,
 {
     fn add_tracing_layer(self: Self) -> Self;
 }
 
 impl<T> ResinRouterExtenions<T> for axum::Router<T>
 where
-    T: Clone + 'static,
-    T: Send,
-    T: Sync,
+    T: Clone + Send + Sync + 'static,
 {
     fn add_tracing_layer(self: Self) -> Self {
         self.layer(
