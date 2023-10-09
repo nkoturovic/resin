@@ -9,12 +9,17 @@ edition = "2021"
 tokio = { version = "1", features = ["full"] }
 tower-http = { version = "0.4.0", features = ["trace"] }
 axum = { version = "0.6", feature = ["tracing"] }
-ormlite = { version = "0.17", features = ["postgres"] }
+ormlite = { version = "0.17", features = ["postgres", "chrono"] }
+# uuid = { version = "1.4", features = ["serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+time = { version = "0.3", features = ["serde"] }
 boilermates = "0.3.0"
 
 # logging
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+axum_garde = "0.15.0"
+garde = "0.15.0"
 
 [dependencies.resin-macros]
 path = "./resin-macros"
