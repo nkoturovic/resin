@@ -1,14 +1,15 @@
 use garde::Validate;
 use ormlite::model::*;
 use ormlite::types::chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
-// use uuid::Uuid; // Do I want to use UUID??
+use uuid::Uuid;
 
-#[derive(Debug, Model, Validate)]
+#[derive(Debug, Model, Serialize, Deserialize, Validate)]
 #[ormlite(table="users", insertable=InsertUser)]
 pub struct User {
     #[garde(skip)]
-    pub id: i64,
+    pub id: Option<Uuid>,
 
     #[garde(skip)]
     pub username: Option<String>,
@@ -35,8 +36,8 @@ pub struct User {
     pub language: Option<String>,
 
     #[garde(skip)]
-    pub created_at: DateTime<Utc>,
+    pub created_at: Option<DateTime<Utc>>,
 
     #[garde(skip)]
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: Option<DateTime<Utc>>,
 }

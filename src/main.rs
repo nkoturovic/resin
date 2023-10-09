@@ -3,15 +3,18 @@ mod models; // import models module
 mod router_extensions;
 
 use axum::response::Result;
-use axum::{routing::get, Router};
+use axum::{
+    routing::{get, post},
+    Router,
+};
 
 use ormlite::postgres::Postgres;
 use ormlite::Pool;
-use std::{net::SocketAddr, sync::Arc};
+use std::net::SocketAddr;
 
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::handlers::{db_test_handler, hello_handler};
+use crate::handlers::{create_user_handler, db_test_handler, hello_handler};
 use crate::router_extensions::ResinRouterExtenions;
 
 #[derive(Clone)]
@@ -19,7 +22,10 @@ pub struct AppState {
     pub db_pool: Pool<Postgres>,
 }
 
-type SharedState = Arc<AppState>;
+// Needed for Garde extractor to work
+impl axum::extract::FromRef<AppState> for () {
+    fn from_ref(_: &AppState) {}
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -34,17 +40,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let state = SharedState::from(AppState {
+    let state = AppState {
         db_pool: ormlite::postgres::PgPoolOptions::new()
             .max_connections(5)
             .connect("postgres://kotur:qweqwe123@localhost:3306")
             .await?,
-    });
+    };
 
     // build our application with a route
     let app = Router::new()
         .route("/", get(hello_handler))
         .route("/db-test", get(db_test_handler))
+        .route("/user", post(create_user_handler))
         .add_tracing_layer()
         .with_state(state);
 
