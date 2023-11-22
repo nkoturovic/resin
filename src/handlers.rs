@@ -1,4 +1,4 @@
-use crate::{models, AppState, validation::ValidJson};
+use crate::{models, AppState, validation::{ValidJson, VALID_OPTS_SKIP_REQUIRED}};
 use axum::http::StatusCode;
 use ormlite::model::*;
 
@@ -41,7 +41,7 @@ pub async fn get_users_handler(State(state): State<AppState>) -> Result<Html<Str
 
 pub async fn create_user_handler(
     State(state): State<AppState>,
-    ValidJson(mut user): ValidJson<User>
+    ValidJson(mut user): ValidJson<User, VALID_OPTS_SKIP_REQUIRED>
 ) -> impl IntoResponse {
     let mut conn = state.db_pool.acquire().await.unwrap();
     user.id = Some(Uuid::new_v4());
