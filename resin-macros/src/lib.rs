@@ -3,8 +3,8 @@ extern crate proc_macro;
 use darling::ast::NestedMeta;
 use darling::{Error, FromMeta};
 use proc_macro::TokenStream;
-use quote::{quote, format_ident};
-use syn::{parse_macro_input, ItemStruct};
+use quote::{format_ident, quote};
+use syn::{parse_macro_input, ItemStruct, Path, Type};
 
 #[derive(Default, Debug, FromMeta)]
 #[darling(default)]
@@ -33,23 +33,22 @@ pub fn resin_model(args: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as ItemStruct);
     let input_struct_name = &input.ident;
     let input_fields_iter = input.fields.iter();
-    let create_struct_name = format_ident!("{}Create", input_struct_name);
 
-    let create_struct = if resin.ops.contains('C') {
+    let perms_struct_name = format_ident!("{}Perms", input_struct_name);
+    let perms_struct_fields = input_fields_iter.map(|field| {
+        let field_name = &field.ident;
+        // let field_type = &field.ty;
         quote! {
-            #[derive(Debug, Serialize)]
-            pub struct #create_struct_name{
-                #( pub #input_fields_iter, )*
-            }
+            #field_name: u8
         }
-    } else {
-        quote!()
-    };
+    });
 
     TokenStream::from(quote! {
         #input // don't touch the original struct
 
-        use serde::{Serialize,Deserialize};
-        #create_struct
+        #[derive(Debug)]
+        struct #perms_struct_name {
+            #(#perms_struct_fields),*
+        }
     })
 }

@@ -12,22 +12,21 @@ struct User {
 
 #[test]
 fn test_entity_print_debug() {
-    let user_create = UserCreate {
-        first_name: String::from("Jane"),
-        last_name: String::from("Doe"),
+    let user_perms = UserPerms {
+        first_name: 0b0010,
+        last_name: 0b1101,
         age: 31,
     };
-    println!("{:?}", user_create);
+    println!("{:?}", user_perms);
 }
 
 #[test]
 fn test_entity_to_json() -> Result<(), serde_json::Error> {
-    let user_create = UserCreate {
-        first_name: String::from("Jane"),
-        last_name: String::from("Doe"),
-        age: 31,
+    let user_perms = UserPerms {
+        first_name: 0b0010,
+        last_name: 0b1011,
+        age: 0b1011,
     };
-    let str = serde_json::to_string(&user_create)?;
-    assert_eq!(str, r#"{"first_name":"Jane","last_name":"Doe","age":31}"#);
+    println!("{:#?}", user_perms);
     Ok(())
 }

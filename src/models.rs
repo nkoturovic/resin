@@ -4,9 +4,33 @@ use ormlite::types::chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use uuid::Uuid;
+use crate::AppState;
+
+struct UserContext {
+    check_required: bool,
+}
+
+impl Default for UserContext {
+    fn default() -> Self {
+        UserContext {
+            check_required: false,
+        }
+    }
+}
+
+fn maybe_required<T>(opt_value: &Option<T>, context: &AppState) -> garde::Result {
+    if context.check_required {
+        if opt_value.is_none() {
+            return Err(garde::Error::new("value is required"));
+        }
+    }
+
+    Ok(())
+}
 
 #[derive(Debug, Model, Serialize, Deserialize, Validate)]
 #[ormlite(table="users", insertable=InsertUser)]
+#[garde(context(AppState as ctx))]
 pub struct User {
     #[garde(skip)]
     pub id: Option<Uuid>,
@@ -14,10 +38,10 @@ pub struct User {
     #[garde(skip)]
     pub username: Option<String>,
 
-    #[garde(email)]
+    #[garde(skip)]
     pub email: Option<String>,
 
-    #[garde(skip)]
+    #[garde(custom(maybe_required))]
     pub password: Option<String>,
 
     #[garde(skip)]

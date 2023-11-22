@@ -18,8 +18,14 @@ use crate::handlers::{create_user_handler, db_test_handler, hello_handler};
 use crate::router_extensions::ResinRouterExtenions;
 
 #[derive(Clone)]
+struct GardeContext {
+    pub check_required : bool
+}
+
+#[derive(Clone)]
 pub struct AppState {
     pub db_pool: Pool<Postgres>,
+    pub garde_context : GardeContext
 }
 
 // Needed for Garde extractor to work

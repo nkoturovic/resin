@@ -19,8 +19,11 @@ boilermates = "0.3.0"
 # logging
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-axum_garde = { version = "0.15.0", feature = ["default", "derive"] }
-garde = "0.15.0"
+
+# axum-extra = "0.8"
+# axum_garde = { version = "0.16.0" } #//, feature = ["axum-extra"] }
+axum_garde = { version = "0.16.0", feature = ["default", "derive"] }
+garde = "0.16.0"
 
 [dependencies.resin-macros]
 path = "./resin-macros"
