@@ -8,8 +8,6 @@ use axum::{
     response::{Html, IntoResponse},
     Json,
 };
-use axum_garde::WithValidation;
-
 use models::User;
 use uuid::Uuid;
 
@@ -43,10 +41,9 @@ pub async fn db_test_handler(State(state): State<AppState>) -> Result<Html<Strin
 
 pub async fn create_user_handler(
     State(state): State<AppState>,
-    WithValidation(valid_user): WithValidation<Json<User>>,
+    Json(mut user): Json<User>,
 ) -> impl IntoResponse {
     let mut conn = state.db_pool.acquire().await.unwrap();
-    let mut user = valid_user.into_inner();
     user.id = Some(Uuid::new_v4());
 
     // TODO(nkoturovic): You need to have multiple structs
