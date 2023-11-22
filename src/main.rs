@@ -1,6 +1,7 @@
 mod handlers;
 mod models; // import models module
 mod router_extensions;
+mod validation;
 
 use axum::response::Result;
 use axum::{
