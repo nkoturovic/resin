@@ -12,11 +12,13 @@ use serde::de::DeserializeOwned;
 use thiserror::Error;
 use validator::{Validate, ValidationErrors};
 
-pub const VALIDATION_CHECK_ALL: i8 = 0x0;
-pub const VALIDATION_SKIP_REQUIRED: i8 = 0x1;
+pub struct ValidationOpts;
+impl ValidationOpts {
+    pub const SKIP_REQUIRED: u8 = 0x1;
+}
 
 #[derive(Debug, Clone, Copy, Default)]
-pub struct ValidatedJson<T, const O: i8>(pub T);
+pub struct ValidatedJson<T, const OPTS: u8 = 0x0>(pub T);
 
 #[derive(Debug, Error)]
 pub enum ServerError {
@@ -41,7 +43,7 @@ impl IntoResponse for ServerError {
 }
 
 #[async_trait]
-impl<T, S, B> FromRequest<S, B> for ValidatedJson<T, VALIDATION_CHECK_ALL>
+impl<T, S, B, const OPTS: u8> FromRequest<S, B> for ValidatedJson<T, OPTS>
 where
     T: DeserializeOwned + Validate,
     B: HttpBody + Send + 'static,
@@ -53,57 +55,43 @@ where
 
     async fn from_request(req: Request<B>, state: &S) -> Result<Self, Self::Rejection> {
         let Json(value) = Json::<T>::from_request(req, state).await?;
-        value.validate()?;
-        Ok(ValidatedJson(value))
-    }
-}
+        if (ValidationOpts::SKIP_REQUIRED & OPTS) != 0 {
+            match value.validate() {
+                Ok(()) => Ok(ValidatedJson(value)),
+                Err(errs) => {
+                    let field_erros = errs.field_errors();
+                    let filtered: HashMap<_, _> = field_erros
+                        .iter()
+                        .map(|(fname, ferrs)| {
+                            (
+                                fname,
+                                ferrs
+                                    .iter()
+                                    .filter(|e| e.code != "required")
+                                    .collect::<Vec<_>>(),
+                            )
+                        })
+                        .collect();
 
-#[async_trait]
-impl<T, S, B> FromRequest<S, B> for ValidatedJson<T, VALIDATION_SKIP_REQUIRED>
-where
-    T: DeserializeOwned + Validate,
-    B: HttpBody + Send + 'static,
-    B::Data: Send,
-    B::Error: Into<BoxError>,
-    S: Send + Sync,
-{
-    type Rejection = ServerError;
-
-    async fn from_request(req: Request<B>, state: &S) -> Result<Self, Self::Rejection> {
-        let Json(value) = Json::<T>::from_request(req, state).await?;
-
-        match value.validate() {
-            Ok(()) => Ok(ValidatedJson(value)),
-            Err(errs) => {
-                let field_erros = errs.field_errors();
-                let filtered: HashMap<_, _> = field_erros
-                    .iter()
-                    .map(|(fname, ferrs)| {
-                        (
-                            fname,
+                    if filtered.is_empty() {
+                        Ok(ValidatedJson(value))
+                    } else {
+                        let mut result_errs = ValidationErrors::new();
+                        for (fname, ferrs) in filtered {
                             ferrs
                                 .iter()
-                                .filter(|e| e.code != "required")
-                                .collect::<Vec<_>>(),
-                        )
-                    })
-                    .collect();
-
-                if filtered.is_empty() {
-                    Ok(ValidatedJson(value))
-                } else {
-                    let mut result_errs = ValidationErrors::new();
-                    for (fname, ferrs) in filtered {
-                        ferrs
-                            .iter()
-                            .for_each(|err| result_errs.add(fname, (*err).clone()))
+                                .for_each(|err| result_errs.add(fname, (*err).clone()))
+                        }
+                        if !result_errs.is_empty() {
+                            return Err(ServerError::ValidationError(result_errs));
+                        }
+                        Ok(ValidatedJson(value))
                     }
-                    if !result_errs.is_empty() {
-                        return Err(ServerError::ValidationError(result_errs));
-                    }
-                    Ok(ValidatedJson(value))
                 }
             }
+        } else {
+            value.validate()?;
+            Ok(ValidatedJson(value))
         }
     }
 }

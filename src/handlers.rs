@@ -1,4 +1,8 @@
-use crate::{models, AppState, validation::{ValidatedJson, VALIDATION_SKIP_REQUIRED}};
+use crate::{
+    models,
+    validation::{ValidatedJson, ValidationOpts},
+    AppState,
+};
 use axum::http::StatusCode;
 use ormlite::model::*;
 
@@ -41,7 +45,7 @@ pub async fn get_users_handler(State(state): State<AppState>) -> Result<Html<Str
 
 pub async fn create_user_handler(
     State(state): State<AppState>,
-    ValidatedJson(mut user): ValidatedJson<User, VALIDATION_SKIP_REQUIRED>
+    ValidatedJson(mut user): ValidatedJson<User, { ValidationOpts::SKIP_REQUIRED }>,
 ) -> impl IntoResponse {
     let mut conn = state.db_pool.acquire().await.unwrap();
     user.id = Some(Uuid::new_v4());
@@ -50,14 +54,14 @@ pub async fn create_user_handler(
     // with different defaults to avoid this (can boilermates solve it??)
     // The issue could be different field macros that are needed, actually
     // that is the main thing that is messing the things currently
-    
+
     // if user.email.is_none() {
     //     return (
     //         StatusCode::BAD_REQUEST,
     //         Json(format!("{{\"msg\": \"email is required\"}}")),
     //     );
     // }
-    
+
     match user.insert(&mut conn).await {
         Ok(u) => (
             StatusCode::CREATED,
