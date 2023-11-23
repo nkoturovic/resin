@@ -49,7 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/", get(hello_handler))
         .route("/user", get(get_users_handler))
         .route("/user", post(create_user_handler))
-        .route("/print_user", get(print_user_handler))
+        .route("/print_user", post(print_user_handler))
         .add_tracing_layer()
         .with_state(state);
 

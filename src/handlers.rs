@@ -1,7 +1,8 @@
 use crate::{
+    error::ServerError,
     models,
     validation::{ValidatedJson, ValidationOpts},
-    AppState, error::ServerError,
+    AppState,
 };
 use axum::http::StatusCode;
 use axum_extra::extract::WithRejection;
@@ -55,28 +56,16 @@ pub async fn create_user_handler(
     ValidatedJson(mut user): ValidatedJson<User, { ValidationOpts::SKIP_REQUIRED }>,
 ) -> impl IntoResponse {
     let mut conn = state.db_pool.acquire().await.unwrap();
+
     user.id = Some(Uuid::new_v4());
 
-    // TODO(nkoturovic): You need to have multiple structs
-    // with different defaults to avoid this (can boilermates solve it??)
-    // The issue could be different field macros that are needed, actually
-    // that is the main thing that is messing the things currently
-
-    // if user.email.is_none() {
-    //     return (
-    //         StatusCode::BAD_REQUEST,
-    //         Json(format!("{{\"msg\": \"email is required\"}}")),
-    //     );
-    // }
-
     match user.insert(&mut conn).await {
-        Ok(u) => (
-            StatusCode::CREATED,
-            Json(format!("{{\"user\": \"{:#?}\"}}", Json(u))),
-        ),
-        Err(msg) => (
+        Ok(u) => (StatusCode::CREATED, Json(serde_json::json!({ "user": u }))),
+        Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(format!("{{\"msg\": \"{}\"}}", msg.to_string())),
+            Json(serde_json::json!({
+                "msg": e.to_string()
+            })),
         ),
     }
 }

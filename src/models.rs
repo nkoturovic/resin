@@ -10,9 +10,9 @@ use uuid::Uuid;
 pub struct User {
     pub id: Option<Uuid>,
     pub username: Option<String>,
-
     #[validate(email(message = "Invalid e-mail address format"), required)]
     pub email: Option<String>,
+    #[serde(skip_serializing)]
     pub password: Option<String>,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
