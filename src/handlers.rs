@@ -1,9 +1,10 @@
 use crate::{
     models,
     validation::{ValidatedJson, ValidationOpts},
-    AppState,
+    AppState, error::ServerError,
 };
 use axum::http::StatusCode;
+use axum_extra::extract::WithRejection;
 use ormlite::model::*;
 
 use axum::response::{ErrorResponse, Result};
@@ -41,6 +42,12 @@ pub async fn get_users_handler(State(state): State<AppState>) -> Result<Html<Str
         <ul>{}</ul>",
         users_str
     )))
+}
+
+pub async fn print_user_handler(
+    WithRejection(Json(user), _): WithRejection<Json<User>, ServerError>,
+) -> impl IntoResponse {
+    Json(user)
 }
 
 pub async fn create_user_handler(

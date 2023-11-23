@@ -1,5 +1,6 @@
+mod error;
 mod handlers;
-mod models; // import models module
+mod models;
 mod router_extensions;
 mod validation;
 
@@ -15,7 +16,7 @@ use std::net::SocketAddr;
 
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::handlers::{create_user_handler, get_users_handler, hello_handler};
+use crate::handlers::{create_user_handler, get_users_handler, hello_handler, print_user_handler};
 use crate::router_extensions::ResinRouterExtenions;
 
 #[derive(Clone)]
@@ -48,6 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/", get(hello_handler))
         .route("/user", get(get_users_handler))
         .route("/user", post(create_user_handler))
+        .route("/print_user", get(print_user_handler))
         .add_tracing_layer()
         .with_state(state);
 

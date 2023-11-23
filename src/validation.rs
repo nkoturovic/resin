@@ -3,14 +3,14 @@ use std::collections::HashMap;
 use axum::{
     async_trait,
     body::HttpBody,
-    extract::{rejection::JsonRejection, FromRequest},
-    http::{Request, StatusCode},
-    response::{IntoResponse, Response},
+    extract::FromRequest,
+    http::Request,
     BoxError, Json,
 };
 use serde::de::DeserializeOwned;
-use thiserror::Error;
 use validator::{Validate, ValidationErrors};
+
+use crate::error::ServerError;
 
 pub struct ValidationOpts;
 impl ValidationOpts {
@@ -19,28 +19,6 @@ impl ValidationOpts {
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ValidatedJson<T, const OPTS: u8 = 0x0>(pub T);
-
-#[derive(Debug, Error)]
-pub enum ServerError {
-    #[error(transparent)]
-    ValidationError(#[from] validator::ValidationErrors),
-
-    #[error(transparent)]
-    AxumJsonRejection(#[from] JsonRejection),
-}
-
-impl IntoResponse for ServerError {
-    fn into_response(self) -> Response {
-        match self {
-            ServerError::ValidationError(_) => {
-                let message = format!("Input validation error: [{}]", self).replace('\n', ", ");
-                (StatusCode::BAD_REQUEST, message)
-            }
-            ServerError::AxumJsonRejection(_) => (StatusCode::BAD_REQUEST, self.to_string()),
-        }
-        .into_response()
-    }
-}
 
 #[async_trait]
 impl<T, S, B, const OPTS: u8> FromRequest<S, B> for ValidatedJson<T, OPTS>

@@ -11,7 +11,7 @@ pub struct User {
     pub id: Option<Uuid>,
     pub username: Option<String>,
 
-    #[validate(email, required)]
+    #[validate(email(message = "Invalid e-mail address format"), required)]
     pub email: Option<String>,
     pub password: Option<String>,
     pub first_name: Option<String>,
