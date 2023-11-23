@@ -23,11 +23,6 @@ pub struct AppState {
     pub db_pool: Pool<Postgres>,
 }
 
-// Needed for Garde extractor to work
-impl axum::extract::FromRef<AppState> for () {
-    fn from_ref(_: &AppState) {}
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::registry()
