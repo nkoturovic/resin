@@ -57,6 +57,32 @@ pub async fn create_user_handler(
 ) -> impl IntoResponse {
     let mut conn = state.db_pool.acquire().await.unwrap();
 
+    let opt_user_same_email_result = User::select()
+        .where_bind("email = ?", user.email.clone().unwrap())
+        .fetch_optional(&state.db_pool)
+        .await;
+
+    match opt_user_same_email_result {
+        Ok(opt) => {
+            if let Some(u) = opt {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(serde_json::json!({
+                        "msg": format!("email '{}' already taken", u.email.unwrap())
+                    })),
+                );
+            }
+        }
+        Err(err) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({
+                    "msg": err.to_string()
+                })),
+            )
+        }
+    }
+
     user.id = Some(Uuid::new_v4());
 
     match user.insert(&mut conn).await {

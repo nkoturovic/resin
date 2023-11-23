@@ -5,7 +5,7 @@ use validator::Validate;
 
 use uuid::Uuid;
 
-#[derive(Debug, Model, Serialize, Deserialize, Validate)]
+#[derive(Model, Debug, Serialize, Deserialize, Validate)]
 #[ormlite(table="users", insertable=InsertUser)]
 pub struct User {
     pub id: Option<Uuid>,
