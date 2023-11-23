@@ -15,7 +15,7 @@ pub async fn hello_handler() -> Html<&'static str> {
     Html("<h1>Hello, World!</h1>")
 }
 
-pub async fn db_test_handler(State(state): State<AppState>) -> Result<Html<String>> {
+pub async fn get_users_handler(State(state): State<AppState>) -> Result<Html<String>> {
     let mut conn = state.db_pool.acquire().await.unwrap();
 
     let result = User::select().fetch_all(conn.as_mut()).await;
