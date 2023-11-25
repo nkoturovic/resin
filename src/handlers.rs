@@ -1,5 +1,11 @@
-use crate::{models, AppState, validation::ValidJson};
+use crate::{
+    error::ServerError,
+    models,
+    validation::{ValidatedJson, ValidationOpts},
+    AppState,
+};
 use axum::http::StatusCode;
+use axum_extra::extract::WithRejection;
 use ormlite::model::*;
 
 use axum::response::{ErrorResponse, Result};
@@ -15,7 +21,7 @@ pub async fn hello_handler() -> Html<&'static str> {
     Html("<h1>Hello, World!</h1>")
 }
 
-pub async fn db_test_handler(State(state): State<AppState>) -> Result<Html<String>> {
+pub async fn get_users_handler(State(state): State<AppState>) -> Result<Html<String>> {
     let mut conn = state.db_pool.acquire().await.unwrap();
 
     let result = User::select().fetch_all(conn.as_mut()).await;
@@ -39,33 +45,53 @@ pub async fn db_test_handler(State(state): State<AppState>) -> Result<Html<Strin
     )))
 }
 
+pub async fn print_user_handler(
+    WithRejection(Json(user), _): WithRejection<Json<User>, ServerError>,
+) -> impl IntoResponse {
+    Json(user)
+}
+
 pub async fn create_user_handler(
     State(state): State<AppState>,
-    ValidJson(mut user): ValidJson<User>
+    ValidatedJson(mut user): ValidatedJson<User, { ValidationOpts::SKIP_REQUIRED }>,
 ) -> impl IntoResponse {
     let mut conn = state.db_pool.acquire().await.unwrap();
+
+    let opt_user_same_email_result = User::select()
+        .where_bind("email = ?", user.email.clone().unwrap())
+        .fetch_optional(&state.db_pool)
+        .await;
+
+    match opt_user_same_email_result {
+        Ok(opt) => {
+            if let Some(u) = opt {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(serde_json::json!({
+                        "msg": format!("email '{}' already taken", u.email.unwrap())
+                    })),
+                );
+            }
+        }
+        Err(err) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({
+                    "msg": err.to_string()
+                })),
+            )
+        }
+    }
+
     user.id = Some(Uuid::new_v4());
 
-    // TODO(nkoturovic): You need to have multiple structs
-    // with different defaults to avoid this (can boilermates solve it??)
-    // The issue could be different field macros that are needed, actually
-    // that is the main thing that is messing the things currently
-    
-    // if user.email.is_none() {
-    //     return (
-    //         StatusCode::BAD_REQUEST,
-    //         Json(format!("{{\"msg\": \"email is required\"}}")),
-    //     );
-    // }
-    
     match user.insert(&mut conn).await {
-        Ok(u) => (
-            StatusCode::CREATED,
-            Json(format!("{{\"user\": \"{:#?}\"}}", Json(u))),
-        ),
-        Err(msg) => (
+        Ok(u) => (StatusCode::CREATED, Json(serde_json::json!({ "user": u }))),
+        Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(format!("{{\"msg\": \"{}\"}}", msg.to_string())),
+            Json(serde_json::json!({
+                "msg": e.to_string()
+            })),
         ),
     }
 }

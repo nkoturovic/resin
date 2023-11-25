@@ -5,14 +5,14 @@ use validator::Validate;
 
 use uuid::Uuid;
 
-#[derive(Debug, Model, Serialize, Deserialize, Validate)]
+#[derive(Model, Debug, Serialize, Deserialize, Validate)]
 #[ormlite(table="users", insertable=InsertUser)]
 pub struct User {
     pub id: Option<Uuid>,
     pub username: Option<String>,
-
-    #[validate(email, required)]
+    #[validate(email(message = "Invalid e-mail address format"), required)]
     pub email: Option<String>,
+    #[serde(skip_serializing)]
     pub password: Option<String>,
     pub first_name: Option<String>,
     pub last_name: Option<String>,

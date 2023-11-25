@@ -1,5 +1,6 @@
+mod error;
 mod handlers;
-mod models; // import models module
+mod models;
 mod router_extensions;
 mod validation;
 
@@ -15,17 +16,12 @@ use std::net::SocketAddr;
 
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::handlers::{create_user_handler, db_test_handler, hello_handler};
+use crate::handlers::{create_user_handler, get_users_handler, hello_handler, print_user_handler};
 use crate::router_extensions::ResinRouterExtenions;
 
 #[derive(Clone)]
 pub struct AppState {
     pub db_pool: Pool<Postgres>,
-}
-
-// Needed for Garde extractor to work
-impl axum::extract::FromRef<AppState> for () {
-    fn from_ref(_: &AppState) {}
 }
 
 #[tokio::main]
@@ -51,8 +47,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // build our application with a route
     let app = Router::new()
         .route("/", get(hello_handler))
-        .route("/db-test", get(db_test_handler))
+        .route("/user", get(get_users_handler))
         .route("/user", post(create_user_handler))
+        .route("/print_user", post(print_user_handler))
         .add_tracing_layer()
         .with_state(state);
 
