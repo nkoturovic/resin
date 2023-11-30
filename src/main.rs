@@ -4,6 +4,7 @@ mod models;
 mod router_extensions;
 mod validation;
 
+use tokio::net::TcpListener;
 use axum::response::Result;
 use axum::{
     routing::{get, post},
@@ -55,11 +56,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // run it
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let listener = TcpListener::bind(addr).await?;
+
     tracing::debug!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    axum::serve(listener, app.into_make_service())
+        .await?;
 
     Ok(())
 }

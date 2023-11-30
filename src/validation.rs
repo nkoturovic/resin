@@ -2,10 +2,9 @@ use std::collections::HashMap;
 
 use axum::{
     async_trait,
-    body::HttpBody,
-    extract::FromRequest,
-    http::Request,
-    BoxError, Json,
+    body::Body,
+    extract::{FromRequest, rejection::JsonRejection},
+    Json, http,
 };
 use serde::de::DeserializeOwned;
 use validator::{Validate, ValidationErrors};
@@ -17,21 +16,23 @@ impl ValidationOpts {
     pub const SKIP_REQUIRED: u8 = 0x1;
 }
 
+/// Type alias for [`http::Request`] whose body type defaults to [`Body`], the most common body
+/// type used with axum.
+pub type Request<T = Body> = http::Request<T>;
+
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ValidatedJson<T, const OPTS: u8 = 0x0>(pub T);
 
 #[async_trait]
-impl<T, S, B, const OPTS: u8> FromRequest<S, B> for ValidatedJson<T, OPTS>
+impl<T, S, const OPTS: u8> FromRequest<S> for ValidatedJson<T, OPTS>
 where
     T: DeserializeOwned + Validate,
-    B: HttpBody + Send + 'static,
-    B::Data: Send,
-    B::Error: Into<BoxError>,
     S: Send + Sync,
+    Json<T>: FromRequest<S, Rejection = JsonRejection>,
 {
     type Rejection = ServerError;
 
-    async fn from_request(req: Request<B>, state: &S) -> Result<Self, Self::Rejection> {
+    async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
         let Json(value) = Json::<T>::from_request(req, state).await?;
         if (ValidationOpts::SKIP_REQUIRED & OPTS) != 0 {
             match value.validate() {
