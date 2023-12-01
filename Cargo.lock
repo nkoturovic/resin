@@ -362,6 +362,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "dacquiri"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "03986e49a42ce954464fa13c362cea70086023ad44f49fb440516f1594954847"
+dependencies = [
+ "async-trait",
+ "dacquiri_derive",
+ "fxhash",
+ "thiserror",
+]
+
+[[package]]
+name = "dacquiri_derive"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e12f72ef0254c1db514cf6a97ce09a313923aa9468fbe27aebfd0d855f3a9e3"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+ "thiserror",
+]
+
+[[package]]
 name = "darling"
 version = "0.14.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -690,6 +714,15 @@ dependencies = [
  "pin-project-lite",
  "pin-utils",
  "slab",
+]
+
+[[package]]
+name = "fxhash"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c31b6d751ae2c7f11320402d34e41349dd1016f8d5d45e48c4312bc8625af50c"
+dependencies = [
+ "byteorder",
 ]
 
 [[package]]
@@ -1524,6 +1557,7 @@ dependencies = [
  "axum-extra",
  "boilermates",
  "chrono",
+ "dacquiri",
  "ormlite",
  "resin-macros",
  "serde",

@@ -38,14 +38,15 @@
       version = "0.0.5";
       cargoLock.lockFile = ./Cargo.lock;
       src = pkgs.lib.cleanSource ./.;
-
     # Programs and libraries used/available at build-time
     nativeBuildInputs = with pkgs; [
       ncurses
 
       cargo
       cargo-expand
-      rust-bin.stable.latest.default
+      # rust-bin.beta.latest.default
+      # rust-bin.stable.latest.default
+      (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default)) # or `toolchain.minimal`
 
       glibcLocales
       postgresql
