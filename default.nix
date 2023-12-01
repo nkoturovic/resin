@@ -2,6 +2,13 @@
   system ? builtins.currentSystem,
   lock ? builtins.fromJSON (builtins.readFile ./flake.lock),
   appConfig ? builtins.fromJSON (builtins.readFile ./config.json),
+  rust-overlay ? let
+    rustOverlay = fetchTarball {
+      url = "https://github.com/oxalica/rustOverlay/archive/${lock.nodes.rustOverlay.locked.rev}.tar.gz";
+      sha256 = lock.nodes.rustOverlay.locked.narHash;
+    };
+  in
+    import rustOverlay,
 
   # The official nixpkgs input, pinned with the hash defined in the flake.lock file
   pkgs ? let
@@ -11,7 +18,7 @@
     };
   in
     import nixpkgs {
-      overlays = [];
+      overlays = [ rust-overlay ];
       config = {};
       inherit system;
     },
@@ -38,7 +45,7 @@
 
       cargo
       cargo-expand
-      rustc
+      rust-bin.stable.latest.default
 
       glibcLocales
       postgresql
