@@ -93,6 +93,7 @@
     PGHOST = toString ./.pg/sockets; # appConfig.database.host;
     PGPORT = appConfig.database.port;
     PGPASS = appConfig.database.password;
+    RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
 
     # Hook used for modifying the prompt look and printing the welcome message
     shellHook = ''
