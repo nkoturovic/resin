@@ -21,8 +21,8 @@ Create db
 ormlite init
 ```
 
-* `ormlite migrate initial` -  Auto generates migrations based on rust structs
 * `ormlite up` - Executes migrations
+* `ormlite migrate initial` -  Auto generates migrations based on rust structs
 
 ## Permission system
 
