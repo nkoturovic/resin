@@ -16,7 +16,11 @@
     ...
   }:
     flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = nixpkgs.legacyPackages.${system};
+      overlays = [(import rustOverlay)];
+      pkgs = import nixpkgs {
+        inherit system overlays;
+      };
+      # pkgs = nixpkgs.legacyPackages.${system};
       package = import ./default.nix {inherit system pkgs;};
     in {
       packages.default = package;

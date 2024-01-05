@@ -2,7 +2,6 @@
   system ? builtins.currentSystem,
   lock ? builtins.fromJSON (builtins.readFile ./flake.lock),
   appConfig ? builtins.fromJSON (builtins.readFile ./config.json),
-
   # The official nixpkgs input, pinned with the hash defined in the flake.lock file
   pkgs ? let
     nixpkgs = fetchTarball {
@@ -27,10 +26,10 @@
     },
 }: let
   package = pkgs.rustPlatform.buildRustPackage rec {
-      name = "resin";
-      version = "0.0.5";
-      cargoLock.lockFile = ./Cargo.lock;
-      src = pkgs.lib.cleanSource ./.;
+    name = "resin";
+    version = "0.0.5";
+    cargoLock.lockFile = ./Cargo.lock;
+    src = pkgs.lib.cleanSource ./.;
 
     # Programs and libraries used/available at build-time
     nativeBuildInputs = with pkgs; [
@@ -46,7 +45,6 @@
 
       openssl
     ];
-
 
     # src = builtins.path {
     #   path = ./.;
@@ -65,7 +63,6 @@
       # pkgs = pkgs
       # shell = shell
     };
-
   };
 
   # Development shell
@@ -81,7 +78,7 @@
       kotur-nixpkgs.dinosay # packet loads from the custom nixpkgs (kotur-nixpkgs)
     ];
 
-    hardeningDisable = [ "all" ];
+    hardeningDisable = ["all"];
 
     LANG = "en_US.UTF-8";
     PGDATABASE = appConfig.database.name;
@@ -109,7 +106,7 @@
       # # Start PostgreSQL running as the current user
       # # and with the Unix socket in the current directory
       # pg_ctl -D .pg/demodb -l log/pg.log -o "--unix_socket_directories='$PWD'" start
-      # 
+      #
       # # Create a database
 
       trap "'$PWD/.pg/client.sh' remove" EXIT
@@ -119,7 +116,7 @@
 
       # psql -lqt | cut -d \| -f 1 | grep -qw $PGDATABASE
       # if [ "$?" == "1" ]; then
-      #   # db does not exist 
+      #   # db does not exist
       #   echo "Creating '$PGDATABASE'"
       #   createdb $PGDATABASE
       # fi
