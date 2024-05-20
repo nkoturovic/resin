@@ -3,7 +3,7 @@ mod handlers;
 mod models;
 mod router_extensions;
 mod validation;
-mod auth;
+// mod auth;
 
 use tokio::net::TcpListener;
 use axum::response::Result;
