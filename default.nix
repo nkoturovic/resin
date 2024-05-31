@@ -44,8 +44,8 @@
       cargo
       cargo-expand
       # rust-bin.beta.latest.default
-      # rust-bin.stable.latest.default
-      (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default)) # or `toolchain.minimal`
+      rust-bin.stable.latest.default
+      # (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default)) # or `toolchain.minimal`
 
       glibcLocales
       postgresql
