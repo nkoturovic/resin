@@ -18,6 +18,7 @@ chrono = { version = "0.4", features = ["serde"] }
 time = { version = "0.3", features = ["serde"] }
 validator = { version = "0.16", features = ["derive"] }
 thiserror = "1.0"
+bitflags = "2.6.0"
 
 # logging
 tracing = "0.1"
