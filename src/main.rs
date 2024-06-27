@@ -3,6 +3,7 @@ mod handlers;
 mod models;
 mod router_extensions;
 mod validation;
+mod authorization_middleware;
 // mod auth;
 
 use tokio::net::TcpListener;
@@ -20,6 +21,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::handlers::{create_user_handler, get_users_handler, hello_handler, print_user_handler};
 use crate::router_extensions::ResinRouterExtenions;
+// use crate::authorization_middleware;
 
 #[derive(Clone)]
 pub struct AppState {

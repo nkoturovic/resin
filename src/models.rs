@@ -3,6 +3,8 @@ use ormlite::types::chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
+use bitflags::bitflags;
+
 use uuid::Uuid;
 
 #[derive(Model, Debug, Clone, Serialize, Deserialize, Validate)]
@@ -23,20 +25,30 @@ pub struct User {
     pub updated_at: Option<DateTime<Utc>>,
 }
 
+bitflags! {
+    #[derive(Default)]
+    pub struct CrudPermissions: u16 {
+        const CREATE = 0x1;
+        const READ = 0x2;
+        const UPDATE = 0x4;
+        const DELETE = 0x8;
+    }
+}
+
 #[derive(Default)]
 struct UserPermissions {
-    pub model: u16,
-    pub id: u16,
-    pub username: u16,
-    pub email: u16,
-    pub password: u16,
-    pub first_name: u16,
-    pub last_name: u16,
-    pub date_of_birth: u16,
-    pub country: u16,
-    pub language: u16,
-    pub created_at: u16,
-    pub updated_at: u16,
+    pub model: CrudPermissions,
+    pub id: CrudPermissions,
+    pub username: CrudPermissions,
+    pub email: CrudPermissions,
+    pub password: CrudPermissions,
+    pub first_name: CrudPermissions,
+    pub last_name: CrudPermissions,
+    pub date_of_birth: CrudPermissions,
+    pub country: CrudPermissions,
+    pub language: CrudPermissions,
+    pub created_at: CrudPermissions,
+    pub updated_at: CrudPermissions,
 }
 
 #[derive(PartialEq)]
@@ -48,44 +60,60 @@ enum Group {
     Owner,
 }
 
-trait Permitable {
-    type PermissionsType;
-    fn get_permissions(group: Group) -> Self::PermissionsType;
+trait ModelPermissions {
+    type Permissions;
+    fn permissions() -> &'static [(Group, Self::Permissions)];
 }
 
-impl Permitable for User {
-    type PermissionsType = UserPermissions;
-    fn get_permissions(group: Group) -> Self::PermissionsType {
-        if group == Group::Guest {
-            return UserPermissions::default()
-        }
+impl ModelPermissions for User {
+    type Permissions = UserPermissions;
+    fn permissions() -> &'static [(Group, Self::Permissions)] {
+        let guest_permissions = UserPermissions::default();
 
         let user_permissions = UserPermissions {
-            model: 0x8,
-            username: 0x8,
-            email: 0x8,
-            first_name: 0x8,
-            last_name: 0x8,
-            date_of_birth: 0x8,
-            country: 0x8,
-            language: 0x8,
+            model: CrudPermissions::READ,
+            username: CrudPermissions::READ,
+            email: CrudPermissions::READ,
+            first_name: CrudPermissions::READ,
+            last_name: CrudPermissions::READ,
+            date_of_birth: CrudPermissions::READ,
+            country: CrudPermissions::READ,
+            language: CrudPermissions::READ,
             ..UserPermissions::default()
         };
 
-        if group == Group::User {
-            return user_permissions
-        }
+        let moderator_permissions = UserPermissions {
+            model: CrudPermissions::UPDATE | CrudPermissions::READ,
+            email: CrudPermissions::UPDATE | CrudPermissions::READ,
+            password: CrudPermissions::UPDATE | CrudPermissions::READ,
+            ..user_permissions
+        };
 
-        if group == Group::Moderator {
-            return UserPermissions {
-                model: 0xC,
-                email: 0xC,
-                password: 0xC,
-                ..user_permissions
-            };
-        }
-        UserPermissions::default()
+        [guest_permissions, user_permissions, moderator_permissions]
     }
+}
+
+// For requests
+
+// Request ->
+// (CREATE, READ, UPDATE, DELETE)
+// Which resource is being targeted?
+// I: For each handler, when given a Opt Model<bool>, it should be able to check wether all
+// required permissions are matched up front + in general, without opts (default list of fields)
+
+// * Model1: ModelPermissions
+
+trait Handler {
+    type ModelBool;
+    type Error;
+    type ClientInfo; // Holds information for deducing who we're talking to
+    fn handle();
+
+    fn check_permissions(
+        client: Self::ClientInfo,
+        requested: Self::ModelBool,
+    ) -> Result<(), Self::Error>; // the error here should have contextual info
+                                  // about which permissions aren't meet exactly
 }
 
 //struct Post;
