@@ -89,7 +89,7 @@ impl ModelPermissions for User {
             ..user_permissions
         };
 
-        [guest_permissions, user_permissions, moderator_permissions]
+        &[(Group::Guest, guest_permissions), (Group::User, user_permissions), Group::Moderator(moderator_permissions)]
     }
 }
 

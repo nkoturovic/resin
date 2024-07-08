@@ -1,48 +1,24 @@
-// ???? Should I use simpler way to create a middleware
 use axum::{
-    response::Response,
-    body::Body,
+    body::{Body},
     extract::Request,
+    http::StatusCode,
+    middleware::{self, Next},
+    response::{IntoResponse, Response},
 };
-use futures_util::future::BoxFuture;
-use tower::{Service, Layer};
-use std::task::{Context, Poll};
 
-#[derive(Clone)]
-struct MyLayer;
+async fn check_permissions(
+    req: Request,
+    next: Next,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    let (parts, body) = req.into_parts();
+    // let bytes = buffer_and_print("request", body).await?;
+    // let req = Request::from_parts(parts, Body::from(bytes));
 
-impl<S> Layer<S> for MyLayer {
-    type Service = MyMiddleware<S>;
+    let res = next.run(req).await;
 
-    fn layer(&self, inner: S) -> Self::Service {
-        MyMiddleware { inner }
-    }
-}
+    let (parts, body) = res.into_parts();
+    // let bytes = buffer_and_print("response", body).await?;
+    // let res = Response::from_parts(parts, Body::from(bytes));
 
-#[derive(Clone)]
-struct MyMiddleware<S> {
-    inner: S,
-}
-
-impl<S> Service<Request> for MyMiddleware<S>
-where
-    S: Service<Request, Response = Response> + Send + 'static,
-    S::Future: Send + 'static,
-{
-    type Response = S::Response;
-    type Error = S::Error;
-    // `BoxFuture` is a type alias for `Pin<Box<dyn Future + Send + 'a>>`
-    type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
-
-    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        self.inner.poll_ready(cx)
-    }
-
-    fn call(&mut self, request: Request) -> Self::Future {
-        let future = self.inner.call(request);
-        Box::pin(async move {
-            let response: Response = future.await?;
-            Ok(response)
-        })
-    }
+    Ok(res)
 }
