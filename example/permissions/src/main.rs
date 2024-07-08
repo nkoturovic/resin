@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use bitflags::bitflags;
+use std::ops::BitAnd;
 use std::ops::BitOr;
 use std::ops::BitXor;
 
@@ -41,6 +42,26 @@ struct UserPermissions {
     pub country: CrudPermissions,
     pub language: CrudPermissions,
 }
+
+impl BitAnd for UserPermissions {
+    type Output = UserPermissions;
+    fn bitand(self : Self, rhs : Self) -> Self {
+        UserPermissions {
+            model: self.model & rhs.model,
+            id: self.id & rhs.id,
+            username: self.username & rhs.username,
+            email: self.email & rhs.email,
+            password: self.password & rhs.password,
+            first_name: self.first_name & rhs.first_name,
+            last_name: self.last_name & rhs.last_name,
+            date_of_birth: self.date_of_birth & rhs.date_of_birth,
+            country: self.country & rhs.country,
+            language: self.language & rhs.language
+        }
+    }
+}
+
+
 
 impl BitOr for UserPermissions {
     type Output = UserPermissions;
@@ -89,7 +110,7 @@ impl BitXor for UserPermissions {
 
 
 #[derive(Default)]
-struct GroupPermissions<P: Default + BitOr + BitXor> {
+struct GroupPermissions<P: Default + BitAnd + BitOr + BitXor> {
     guest : P,
     user : P,
     moderator : P,
@@ -97,7 +118,7 @@ struct GroupPermissions<P: Default + BitOr + BitXor> {
     owner : P,
 }
 
-impl <P> BitOr for GroupPermissions<P> where P: Default + BitOr<Output = P> + BitXor<Output = P> {
+impl <P> BitOr for GroupPermissions<P> where P: Default + BitAnd<Output=P> + BitOr<Output = P> + BitXor<Output = P> {
     type Output = GroupPermissions<P>;
     fn bitor(self : Self, rhs : GroupPermissions<P>) -> GroupPermissions<P> {
         GroupPermissions::<P> {
@@ -111,7 +132,7 @@ impl <P> BitOr for GroupPermissions<P> where P: Default + BitOr<Output = P> + Bi
 }
 
 trait ModelPermissions {
-    type Permissions : Default + BitOr + BitXor;
+    type Permissions : Default + BitAnd + BitOr + BitXor;
     fn permissions() -> GroupPermissions<Self::Permissions>;
 }
 
@@ -149,13 +170,13 @@ impl ModelPermissions for User {
 }
 
 fn check_permissions<M : ModelPermissions>(requested_permissions : M::Permissions, groups : GroupPermissions<bool>) -> M::Permissions
-where <M as ModelPermissions>::Permissions: BitOr<Output=M::Permissions> + BitXor<Output=M::Permissions> {
+where <M as ModelPermissions>::Permissions: BitAnd<Output=M::Permissions> + BitOr<Output=M::Permissions> + BitXor<Output=M::Permissions> {
     let model_permissions = M::permissions();
     let mut given_permissions : M::Permissions = M::Permissions::default();
     if groups.user {
         given_permissions = given_permissions | model_permissions.user
     }
-    given_permissions ^ requested_permissions
+    given_permissions & requested_permissions
 }
 
 
