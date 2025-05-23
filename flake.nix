@@ -2,7 +2,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     koturNixPkgs = {
-      url = "github:nkoturovic/kotur-nixpkgs/v0.5";
+      url = "github:nkoturovic/kotur-nixpkgs/v0.8.0";
       flake = false;
     };
     rustOverlay.url = "github:oxalica/rust-overlay";
